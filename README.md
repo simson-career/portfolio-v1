@@ -18,22 +18,19 @@ Open [http://localhost:3000](http://localhost:3000).
 - Main page composition: `components/portfolio-page.tsx`
 - Résumé download: `public/Simson-M-Resume.pdf`
 
-## Deploy to Vercel
+## Deploy to GitHub Pages
 
-Import this repository in Vercel and deploy with the default Next.js settings. Vercel Analytics is already connected in the root layout. If you attach a custom domain, set `NEXT_PUBLIC_SITE_URL` to its complete HTTPS URL; otherwise the sitemap uses Vercel's production URL automatically.
+The app is configured as a static Next.js export and is deployed entirely by GitHub Actions. A push to `main` runs linting, creates the `out/` directory, uploads it as a Pages artifact, and deploys it to:
 
-### Contact form email delivery
+<https://simson-career.github.io/portfolio-v1/>
 
-The contact endpoint uses a console-only provider during local development. For production, add these server-side environment variables in Vercel:
+One repository setting is required once: open **Settings → Pages → Build and deployment**, then select **GitHub Actions** as the source. You can also rerun the workflow manually from the **Actions** tab.
 
-```bash
-EMAIL_PROVIDER=resend
-RESEND_API_KEY=re_your_api_key
-CONTACT_FROM_EMAIL="Simson Portfolio <hello@your-domain.com>"
-CONTACT_TO_EMAIL=simsonmoses.m@gmail.com
-```
+The workflow derives the repository base path automatically, so Next.js assets, internal links, the résumé, sitemap, and robots file work under `/portfolio-v1/` without hard-coded deployment paths in components.
 
-`RESEND_API_KEY` is read only by the server route and is never included in the browser bundle. The endpoint validates input with Zod, limits requests by client IP, checks same-origin browser submissions, caps payload size, and includes a honeypot field.
+### Contact form on static hosting
+
+GitHub Pages cannot run Next.js API routes or hold server-side email credentials. The contact form therefore validates with Zod in the browser and opens a prefilled draft in the visitor's default email app. Form contents are not uploaded to GitHub or any third-party form provider. If server-side delivery, rate limiting, or spam filtering is needed later, the form must use an external backend or a host with a server runtime.
 
 ## Checks
 

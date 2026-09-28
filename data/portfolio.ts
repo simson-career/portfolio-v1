@@ -3,7 +3,7 @@ export const profile = {
   role: "Software Development Engineer II",
   email: "simsonmoses.m@gmail.com",
   location: "Bengaluru, India",
-  resume: "/Simson-M-Resume.pdf",
+  resume: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/Simson-M-Resume.pdf`,
 };
 
 export const projects = [

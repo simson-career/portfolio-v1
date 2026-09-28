@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import { Geist } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
@@ -63,7 +62,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         {children}
-        <Analytics />
       </body>
     </html>
   );

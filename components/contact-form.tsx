@@ -2,7 +2,7 @@
 
 import { AlertCircle, ArrowUpRight, CheckCircle2, LoaderCircle, Send } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import {
   contactSchema,
   contactSubjects,
@@ -29,6 +29,7 @@ export function ContactForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitState, setSubmitState] = useState<SubmitState>({ type: "idle" });
   const [isPending, setIsPending] = useState(false);
+  const pendingRef = useRef(false);
 
   const updateField = <Key extends keyof ContactInput>(
     field: Key,
@@ -43,7 +44,7 @@ export function ContactForm() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
+    if (pendingRef.current) return;
 
     const parsed = contactSchema.safeParse(values);
     if (!parsed.success) {
@@ -57,31 +58,33 @@ export function ContactForm() {
       return;
     }
 
+    pendingRef.current = true;
     setIsPending(true);
     setErrors({});
     setSubmitState({ type: "idle" });
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
-      });
-      const result = (await response.json()) as {
-        ok?: boolean;
-        message?: string;
-        fieldErrors?: FieldErrors;
-      };
-
-      if (!response.ok || !result.ok) {
-        if (result.fieldErrors) setErrors(result.fieldErrors);
-        throw new Error(result.message || "Your message could not be sent.");
+      if (!reduceMotion) {
+        await new Promise((resolve) => window.setTimeout(resolve, 260));
       }
 
-      setValues(initialValues);
+      // GitHub Pages has no server runtime. Hand the validated message to the
+      // visitor's email client without uploading its contents anywhere.
+      if (!parsed.data.website) {
+        const subject = encodeURIComponent(`[Portfolio] ${parsed.data.subject}`);
+        const body = encodeURIComponent(
+          `Hi Simson,\n\n${parsed.data.message}\n\n— ${parsed.data.name}\n${parsed.data.email}`,
+        );
+        window.location.assign(
+          `mailto:simsonmoses.m@gmail.com?subject=${subject}&body=${body}`,
+        );
+      }
+
       setSubmitState({
         type: "success",
-        message: result.message || "Message sent. I’ll be in touch soon.",
+        message: parsed.data.website
+          ? "Thanks — your message is ready."
+          : "Email draft opened. Review it, then send it from your email app.",
       });
     } catch (error) {
       setSubmitState({
@@ -89,9 +92,10 @@ export function ContactForm() {
         message:
           error instanceof Error
             ? error.message
-            : "Something went wrong. Please try again.",
+            : "I couldn’t open your email app. Please use the direct email link instead.",
       });
     } finally {
+      pendingRef.current = false;
       setIsPending(false);
     }
   };
@@ -195,7 +199,7 @@ export function ContactForm() {
 
         <div className="form-submit-row">
           <button className="send-button" type="submit" disabled={isPending}>
-            <span>{isPending ? "Sending" : "Send message"}</span>
+            <span>{isPending ? "Preparing" : "Open email draft"}</span>
             {isPending ? (
               <LoaderCircle className="loading-icon" size={17} />
             ) : (
@@ -203,7 +207,7 @@ export function ContactForm() {
             )}
           </button>
           <p>
-            Or email directly at{" "}
+            Nothing is uploaded. Or email directly at{" "}
             <a href="mailto:simsonmoses.m@gmail.com">
               simsonmoses.m@gmail.com <ArrowUpRight size={13} />
             </a>

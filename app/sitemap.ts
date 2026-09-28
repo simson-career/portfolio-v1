@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
@@ -10,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${getSiteUrl()}/contact`,
+      url: `${getSiteUrl()}/contact/`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.8,
