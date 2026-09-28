@@ -1,0 +1,19 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# local files
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# tooling scratch files
+/tmp
+*.tsbuildinfo
+
+# local source copy; the downloadable resume lives in /public
+/SIMSON SDE II.pdf
